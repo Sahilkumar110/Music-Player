@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Player - Listen Music Online</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    *::before,
+    *::after {
+      padding: 0;
+      margin: 0;
+    }
+
+    :root {
+      --pink: #ff74a4;
+      --violet: #9f6ea3;
+      --lightblack: #515C6F;
+      --white: #ffffff;
+      --darkwhite: #cecaca;
+      --pinkshadow: #ffcbdd;
+      --lightbshadow: rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(var(--pink) 0%, var(--violet) 100%);
+    }
+
+    .wrapper {
+      width: 380px;
+      padding: 25px 30px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 15px;
+      background: var(--white);
+      box-shadow: 0px 6px 15px var(--lightbshadow);
+    }
+
+    .top-bar,
+    .progress-area .song-timer,
+    .controls,
+    .music-list .header,
+    .music-list ul li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-bar i {
+      font-size: 30px;
+      color: var(--lightblack);
+    }
+
+    .top-bar i:first-child {
+      margin-left: -7px;
+    }
+
+    .top-bar span {
+      font-size: 18px;
+      margin-left: -3px;
+      color: var(--lightblack);
+    }
+
+    .img-area {
+      width: 100%;
+      height: 256px;
+      overflow: hidden;
+      margin-top: 25px;
+      border-radius: 15px;
+      box-shadow: 0px 6px 12px var(--lightbshadow);
+    }
+
+    .img-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .song-details {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .song-details p {
+      color: var(--lightblack);
+    }
+
+    .song-details .name {
+      font-size: 21px;
+    }
+
+    .song-details .artist {
+      font-size: 18px;
+      opacity: 0.9;
+      line-height: 35px;
+    }
+
+    .progress-area {
+      height: 6px;
+      width: 100%;
+      border-radius: 50px;
+      background: #f0f0f0;
+      cursor: pointer;
+    }
+
+    .progress-area .progress-bar {
+      height: inherit;
+      width: 0%;
+      position: relative;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink) 0%, var(--violet) 100%);
+    }
+
+    .progress-bar::before {
+      content: "";
+      position: absolute;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      top: 50%;
+      right: -5px;
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-50%);
+      background: inherit;
+      transition: opacity 0.2s ease;
+    }
+
+    .progress-area:hover .progress-bar::before {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .progress-area .song-timer {
+      margin-top: 2px;
+    }
+
+    .song-timer span {
+      font-size: 13px;
+      color: var(--lightblack);
+    }
+
+    .controls {
+      margin: 40px 0 5px 0;
+    }
+
+    .controls i {
+      font-size: 28px;
+      user-select: none;
+      background: linear-gradient(var(--pink) 0%, var(--violet) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .controls i:nth-child(2),
+    .controls i:nth-child(4) {
+      font-size: 43px;
+    }
+
+    .controls #prev {
+      margin-right: -13px;
+    }
+
+    .controls #next {
+      margin-left: -13px;
+    }
+
+    .controls .play-pause {
+      height: 54px;
+      width: 54px;
+      display: flex;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(var(--white) 0%, var(--darkwhite) 100%);
+      box-shadow: 0px 0px 5px var(--pink);
+    }
+
+    .play-pause::before {
+      position: absolute;
+      content: "";
+      height: 43px;
+      width: 43px;
+      border-radius: inherit;
+      background: linear-gradient(var(--pink) 0%, var(--violet) 100%);
+    }
+
+    .play-pause i {
+      height: 43px;
+      width: 43px;
+      line-height: 43px;
+      text-align: center;
+      background: inherit;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: absolute;
+    }
+
+    .music-list {
+      position: absolute;
+      background: var(--white);
+      width: 100%;
+      left: 0;
+      bottom: -55%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      padding: 15px 30px;
+      border-radius: 15px;
+      box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.15s ease-out;
+    }
+
+    .music-list.show {
+      bottom: 0;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .header .row {
+      display: flex;
+      align-items: center;
+      font-size: 19px;
+      color: var(--lightblack);
+    }
+
+    .header .row i {
+      cursor: default;
+    }
+
+    .header .row span {
+      margin-left: 5px;
+    }
+
+    .header #close {
+      font-size: 22px;
+      color: var(--lightblack);
+    }
+
+    .music-list ul {
+      margin: 10px 0;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .music-list ul::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    .music-list ul li {
+      list-style: none;
+      display: flex;
+      cursor: pointer;
+      padding-bottom: 10px;
+      margin-bottom: 5px;
+      color: var(--lightblack);
+      border-bottom: 1px solid #E5E5E5;
+    }
+
+    .music-list ul li:last-child {
+      border-bottom: 0px;
+    }
+
+    .music-list ul li .row span {
+      font-size: 17px;
+    }
+
+    .music-list ul li .row p {
+      opacity: 0.9;
+    }
+
+    ul li .audio-duration {
+      font-size: 16px;
+    }
+
+    ul li.playing {
+      pointer-events: none;
+      color: var(--violet);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="top-bar">
+      <i class="material-icons">expand_more</i>
+      <span>Now Playing</span>
+      <i class="material-icons">more_horiz</i>
+    </div>
+    <div class="img-area">
+      <img src="" alt="Music Image">
+    </div>
+    <div class="song-details">
+      <p class="name"></p>
+      <p class="artist"></p>
+    </div>
+    <div class="progress-area">
+      <div class="progress-bar">
+        <audio id="main-audio" src=""></audio>
+      </div>
+      <div class="song-timer">
+        <span class="current-time">0:00</span>
+        <span class="max-duration">0:00</span>
+      </div>
+    </div>
+    <div class="controls">
+      <i id="repeat-plist" class="material-icons" title="Playlist looped">repeat</i>
+      <i id="prev" class="material-icons">skip_previous</i>
+      <div class="play-pause">
+        <i class="material-icons play">play_arrow</i>
+      </div>
+      <i id="next" class="material-icons">skip_next</i>
+      <i id="more-music" class="material-icons">queue_music</i>
+    </div>
+    <div class="music-list">
+      <div class="header">
+        <div class="row">
+          <i class="list material-icons">queue_music</i>
+          <span>Music list</span>
+        </div>
+        <i id="close" class="material-icons">close</i>
+      </div>
+      <ul></ul>
+    </div>
+  </div>
+
+  <script>
+    const songs = [
+      {
+        name: "Channa Ve",
+        artist: "Akhil Sachdeva & Mansheel",
+        image: "music-1.jpg",
+        src: "song1.mp3",
+      },
+      {
+        name: "Hamari Adhuri Kahani",
+        artist: "Arijit Singh",
+        image: "music-2.jpg",
+        src: "song2.mp3",
+      },
+      {
+        name: "Shairt Da Button",
+        artist: "Sonu Nigam",
+        image: "music-3.jpg",
+        src: "song3.mp3",
+      },
+      {
+        name: "Falak Tak",
+        artist: "Mahalakshmi Iyer & Udit Narayan",
+        image: "music-4.jpg",
+        src: "song4.mp3",
+      },
+      {
+        name: "Chalte Chalte Yun Hi Koi",
+        artist: "Lata Mangeshkar & Mohammed Rafi",
+        image: "music-5.jpg",
+        src: "song5.mp3",
+      },
+      {
+        name: "Radha",
+        artist: "Shahid Mallya & Sunidhi Chauhan",
+        image: "music-6.jpg",
+        src: "song6.mp3",
+      }
+    ];
+    let currentIndex = 0;
+    const audio = document.getElementById("main-audio");
+    const playPauseBtn = document.querySelector(".play");
+    const songName = document.querySelector(".name");
+    const songArtist = document.querySelector(".artist");
+    const songImage = document.querySelector(".img-area img");
+    const songDuration = document.querySelector(".max-duration");
+    const currentTimeDisplay = document.querySelector(".current-time");
+    const progressBar = document.querySelector(".progress-bar");
+    const musicList = document.querySelector(".music-list ul");
+    function loadSong(song) {
+      songName.textContent = song.name;
+      songArtist.textContent = song.artist;
+      songImage.src = song.image;
+      audio.src = song.src;
+      songDuration.textContent = song.duration;
+    }
+    function playPauseSong() {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.textContent = "pause";
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = "play_arrow";
+      }
+    }
+    audio.addEventListener("timeupdate", () => {
+      currentTimeDisplay.textContent = formatTime(audio.currentTime);
+      const progress = (audio.currentTime / audio.duration) * 100;
+      progressBar.style.width = `${progress}%`;
+    });
+    document.querySelector(".progress-area").addEventListener("click", (e) => {
+      const progressAreaWidth = e.currentTarget.clientWidth;
+      const clickPosition = e.offsetX;
+      const duration = audio.duration;
+      audio.currentTime = (clickPosition / progressAreaWidth) * duration;
+    });
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    audio.addEventListener("loadedmetadata", () => {
+      songDuration.textContent = formatTime(audio.duration);
+    });
+    loadSong(songs[currentIndex]);
+    playPauseBtn.addEventListener("click", playPauseSong);
+    songs.forEach((song, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<div class="row"><span>${song.name}</span><p>${song.artist}</p><span class="audio-duration">${song.duration}</span></div>`;
+      li.addEventListener("click", () => {
+        currentIndex = index;
+        loadSong(songs[currentIndex]);
+        playPauseSong();
+      });
+      musicList.appendChild(li);
+    });
+    document.getElementById("next").addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % songs.length;
+      loadSong(songs[currentIndex]);
+      playPauseSong();
+    });
+    document.getElementById("prev").addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+      loadSong(songs[currentIndex]);
+      playPauseSong();
+    });
+    document.getElementById("more-music").addEventListener("click", () => {
+      document.querySelector(".music-list").classList.toggle("show");
+    });
+    document.getElementById("close").addEventListener("click", () => {
+      document.querySelector(".music-list").classList.remove("show");
+    });
+    document.querySelector(".top-bar i:first-child").addEventListener("click", () => {
+      document.querySelector(".music-list").classList.remove("show");
+      document.querySelector(".wrapper").classList.toggle("expanded");
+    });
+  </script>
+</body>
+
+</html>
